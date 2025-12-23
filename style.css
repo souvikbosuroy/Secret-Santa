@@ -24,6 +24,8 @@ input, button {
   border: 1px solid #f00;
   font-weight: 600;
   font-family: "Mountains of Christmas", serif;
+  border-radius: 30px;
+  box-shadow: 0 4px 40px 0 #00000049;
 }
 
 h1,
@@ -151,6 +153,9 @@ button {
   gap: 16px;
   color: #fff;
   font-family: "Mountains of Christmas", serif;
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 1.5em;
 }
 
 .hero .container .login .unlockForm {
