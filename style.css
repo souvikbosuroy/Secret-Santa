@@ -210,9 +210,12 @@ button {
 
 @media(max-width: 767px) {
   .hero {
-    height: auto !important;
+    height: 100vh !important;
+    background-image: url(./images/christmas.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
   }
-  
+
   .hero .container h1 {
   font-size: 40px;
   line-height: 1.1em;
@@ -223,6 +226,22 @@ button {
   align-items: center;
   gap: 0;
   margin-bottom: 20px;
+}
+
+#game p {
+  color: #fff;
+  font-weight: 600;
+  font-size: 20px;
+}
+
+#dice {
+  margin: 5px;
+}
+
+#greeting {
+  color: #fff;
+  font-weight: 600;
+  margin-top: 20px;
 }
 
 .hero .backgroundSantaMobile {
