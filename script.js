@@ -217,3 +217,34 @@ function enableAntiScreenshot() {
 
   document.body.style.userSelect = "none";
 }
+
+/*************************************************
+ * 🎄 FESTIVE EFFECTS
+ *************************************************/
+function startSnow() {
+  for (let i = 0; i < 30; i++) {
+    const snow = document.createElement("div");
+    snow.className = "snow";
+    snow.textContent = "❄";
+    snow.style.left = Math.random() * 100 + "vw";
+    snow.style.animationDuration = 5 + Math.random() * 5 + "s";
+    snow.style.opacity = Math.random();
+    document.body.appendChild(snow);
+
+    setTimeout(() => snow.remove(), 10000);
+  }
+}
+
+function confettiBurst() {
+  for (let i = 0; i < 40; i++) {
+    const confetti = document.createElement("div");
+    confetti.className = "confetti";
+    confetti.style.left = Math.random() * 100 + "vw";
+    confetti.style.background =
+      ["#ff0", "#f00", "#0f0", "#0ff", "#f0f"][Math.floor(Math.random() * 5)];
+    confetti.style.animationDuration = 3 + Math.random() * 3 + "s";
+    document.body.appendChild(confetti);
+
+    setTimeout(() => confetti.remove(), 6000);
+  }
+}
