@@ -23,6 +23,7 @@ input, button {
   color: #f00;
   border: 1px solid #f00;
   font-weight: 600;
+  font-family: "Mountains of Christmas", serif;
 }
 
 h1,
@@ -149,7 +150,7 @@ button {
   align-items: center;
   gap: 16px;
   color: #fff;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Mountains of Christmas", serif;
 }
 
 .hero .container .login .unlockForm {
