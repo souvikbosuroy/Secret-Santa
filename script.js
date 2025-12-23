@@ -23,23 +23,19 @@ const resultDiv = document.getElementById("result");
 const assignedNameDiv = document.getElementById("assignedName");
 
 /*************************************************
- * INITIAL STATE
+ * INIT
  *************************************************/
 unlockBtn.disabled = true;
 gameDiv.style.display = "none";
 resultDiv.style.display = "none";
 
 /*************************************************
- * LOAD USERS FROM GOOGLE SHEET
+ * LOAD USERS
  *************************************************/
 async function loadUsers() {
-  try {
-    const res = await fetch(API_URL);
-    users = await res.json();
-    unlockBtn.disabled = false;
-  } catch (e) {
-    loginMsg.textContent = "❌ Failed to load data";
-  }
+  const res = await fetch(API_URL);
+  users = await res.json();
+  unlockBtn.disabled = false;
 }
 loadUsers();
 
@@ -47,11 +43,6 @@ loadUsers();
  * LOGIN
  *************************************************/
 unlockBtn.onclick = () => {
-  if (!users.length) {
-    loginMsg.textContent = "⏳ Loading… please wait";
-    return;
-  }
-
   const answer = secretInput.value.toLowerCase().trim();
   const user = users.find(u => u.answer === answer);
 
@@ -64,63 +55,42 @@ unlockBtn.onclick = () => {
   greeting.textContent = `Hi, ${user.name} 👋`;
   loginMsg.textContent = "";
 
-  // SHOW GAME
-  gameDiv.style.display = "block";
-
-  // If already assigned, show result directly
   if (user.assigned_to) {
-    gameDiv.style.display = "none";
     showResult(user.assigned_to);
-    rollBtn.disabled = true;
+    return;
   }
+
+  gameDiv.style.display = "block";
 };
 
 /*************************************************
- * ASSIGN (GLOBAL LOCK VIA SHEET)
+ * ASSIGN (GET-BASED, CORS-SAFE)
  *************************************************/
 rollBtn.onclick = async () => {
   rollBtn.disabled = true;
 
   const available = users
-    .filter(
-      u =>
-        !u.assigned_to &&
-        u.name !== currentUser.name
-    )
+    .filter(u => !u.assigned_to && u.name !== currentUser.name)
     .map(u => u.name);
-
-  if (!available.length) {
-    alert("❌ No valid names left");
-    return;
-  }
 
   const chosen =
     available[Math.floor(Math.random() * available.length)];
 
-  // ✅ USE FORMDATA (NO HEADERS, NO JSON)
-  const formData = new FormData();
-  formData.append("giver", currentUser.name);
-  formData.append("receiver", chosen);
+  const url =
+    `${API_URL}?action=assign` +
+    `&giver=${encodeURIComponent(currentUser.name)}` +
+    `&receiver=${encodeURIComponent(chosen)}`;
 
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      body: formData
-    });
+  const res = await fetch(url);
+  const data = await res.json();
 
-    const data = await res.json();
-
-    if (!data.success) {
-      alert(data.error || "Assignment failed");
-      location.reload(); // resync with sheet
-      return;
-    }
-
-    showResult(data.assigned_to);
-  } catch (e) {
-    alert("❌ Network error");
+  if (!data.success) {
+    alert(data.error);
     location.reload();
+    return;
   }
+
+  showResult(data.assigned_to);
 };
 
 /*************************************************
@@ -129,8 +99,5 @@ rollBtn.onclick = async () => {
 function showResult(name) {
   gameDiv.style.display = "none";
   resultDiv.style.display = "block";
-
-  assignedNameDiv.innerHTML = `
-    🎁 You got <b>${name}</b>
-  `;
+  assignedNameDiv.innerHTML = `🎁 You got <b>${name}</b>`;
 }
