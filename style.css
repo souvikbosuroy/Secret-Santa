@@ -209,6 +209,10 @@ button {
 
 
 @media(max-width: 767px) {
+  .hero {
+    height: auto !important;
+  }
+  
   .hero .container h1 {
   font-size: 40px;
   line-height: 1.1em;
@@ -234,4 +238,9 @@ button {
   line-height: 1.5em;
   flex-direction: column;
 }
+
+.hero .container {
+  padding: 40px 20px;
+}
+
 }
