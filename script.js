@@ -6,6 +6,9 @@ const participants = [
   { name: "Debjit Dey", answer: "dey1112" },
   { name: "Souvik Bosu Roy", answer: "bosu1113" },
   { name: "Anindya Mazumder", answer: "mazumder1114" },
+  { name: "Sujay Biswas", answer: "biswas1115" },
+  { name: "Sayani Kundu", answer: "kundu1115" },
+  { name: "Gaurav Dey", answer: "dey1116" },
 ].map(p => ({
   name: p.name,
   answer: p.answer.toLowerCase().trim()
