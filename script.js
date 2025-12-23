@@ -247,4 +247,27 @@ function confettiBurst() {
 
     setTimeout(() => confetti.remove(), 6000);
   }
+
+  /*************************************************
+ * LINK-BASED REVEAL (PHONE ONLY)
+ *************************************************/
+const params = new URLSearchParams(window.location.search);
+const revealToken = params.get("reveal");
+
+if (revealToken) {
+  const saved = state.assignedTokens[revealToken];
+
+  if (!saved) {
+    document.body.innerHTML = "<h2>❌ Link expired or invalid</h2>";
+  } else if (!isPhone()) {
+    document.body.innerHTML = "<h2>📵 Open this link on your phone</h2>";
+  } else {
+    // ONE-TIME OPEN
+    delete state.assignedTokens[revealToken];
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+
+    showResult(saved);
+  }
+}
+
 }
