@@ -2,22 +2,21 @@
  * CONFIG — EDIT ONLY THIS
  *************************************************/
 const participants = [
-  { name: "Sayak Maanna",   answer: "manna1111" },
-  { name: "Debjit Dey",  answer: "dey1112" },
-  { name: "Souvik Bosu Roy", answer: "Bosu1113" },
-  { name: "Anindya Mazumder",   answer: "Mazumder1114" },
+  { name: "Sayak Maanna", answer: "manna1111" },
+  { name: "Debjit Dey", answer: "dey1112" },
+  { name: "Souvik Bosu Roy", answer: "bosu1113" },
+  { name: "Anindya Mazumder", answer: "mazumder1114" },
 ].map(p => ({
   name: p.name,
   answer: p.answer.toLowerCase().trim()
 }));
 
 /*************************************************
- * STORAGE AUTO-SYNC LOGIC (DO NOT TOUCH)
+ * STORAGE AUTO-SYNC LOGIC
  *************************************************/
 const STORAGE_KEY = "secret_santa_secure";
-const STORAGE_VERSION = "v3";
+const STORAGE_VERSION = "v5";
 
-// signature changes whenever code data changes
 const SIGNATURE = participants
   .map(p => `${p.name}:${p.answer}`)
   .join("|");
@@ -25,17 +24,13 @@ const SIGNATURE = participants
 const defaultState = {
   version: STORAGE_VERSION,
   signature: SIGNATURE,
-  assignedTokens: {},
+  assignedTokens: {}, // token → { name, opened, device }
   pool: participants.map(p => p.name)
 };
 
 let state = JSON.parse(localStorage.getItem(STORAGE_KEY));
 
-if (
-  !state ||
-  state.version !== STORAGE_VERSION ||
-  state.signature !== SIGNATURE
-) {
+if (!state || state.version !== STORAGE_VERSION || state.signature !== SIGNATURE) {
   state = structuredClone(defaultState);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
@@ -58,13 +53,25 @@ let currentUser = null;
 let userToken = null;
 
 /*************************************************
- * DEVICE CHECK
+ * DEVICE + FINGERPRINT
  *************************************************/
 function isPhone() {
   return (
     /android|iphone|ipod|windows phone/i.test(navigator.userAgent) &&
-    ("ontouchstart" in window || navigator.maxTouchPoints > 0) &&
+    navigator.maxTouchPoints > 0 &&
     window.innerWidth <= 768
+  );
+}
+
+function getDeviceFingerprint() {
+  return btoa(
+    navigator.userAgent +
+    "|" +
+    screen.width +
+    "x" +
+    screen.height +
+    "|" +
+    navigator.maxTouchPoints
   );
 }
 
@@ -85,7 +92,7 @@ unlockBtn.onclick = () => {
   loginMsg.textContent = "";
 
   if (state.assignedTokens[userToken]) {
-    showResult(state.assignedTokens[userToken]);
+    showReveal(state.assignedTokens[userToken]);
   } else {
     gameDiv.style.display = "block";
   }
@@ -103,42 +110,79 @@ rollBtn.onclick = () => {
 
   let count = 0;
   const interval = setInterval(() => {
-    diceDiv.textContent = "🎲".repeat(Math.random() * 6 + 1);
-    count++;
-
-    if (count > 10) {
+    diceDiv.textContent = "🎲".repeat(Math.floor(Math.random() * 6) + 1);
+    if (++count > 10) {
       clearInterval(interval);
-      const chosen = available[Math.floor(Math.random() * available.length)];
 
-      state.assignedTokens[userToken] = chosen;
+      const chosen = available[Math.floor(Math.random() * available.length)];
+      state.assignedTokens[userToken] = {
+        name: chosen,
+        opened: false,
+        device: null
+      };
+
       state.pool = state.pool.filter(n => n !== chosen);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-
-      showResult(chosen);
+      showReveal(state.assignedTokens[userToken]);
     }
   }, 100);
 };
 
 /*************************************************
- * RESULT + PHONE ONLY + SCREENSHOT DETERRENCE
+ * ANIMATED REVEAL
  *************************************************/
-function showResult(name) {
+function showReveal(entry) {
   gameDiv.style.display = "none";
   resultDiv.style.display = "block";
   qrDiv.innerHTML = "";
 
   if (!isPhone()) {
     assignedNameDiv.innerHTML =
-      "<b>🔒 Open this link on your phone to reveal your secret</b>";
+      "<b>🔒 Open this link on your phone</b>";
     return;
   }
 
-  assignedNameDiv.textContent =
-    "This QR is protected. Screenshots discouraged.";
+  const fingerprint = getDeviceFingerprint();
+
+  if (entry.opened && entry.device !== fingerprint) {
+    assignedNameDiv.innerHTML =
+      "<b>❌ This link was already opened on another device</b>";
+    return;
+  }
+
+  if (!entry.device) {
+    entry.device = fingerprint;
+  }
+
+  assignedNameDiv.innerHTML = "🎁 Opening your secret...";
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+
+  setTimeout(() => {
+    assignedNameDiv.innerHTML = `
+      <div style="font-size:28px; animation: pop 0.6s ease">
+        🎅 You got <b>${entry.name}</b>
+      </div>
+    `;
+
+    entry.opened = true;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    generateQR();
+  }, 2000);
+}
+
+/*************************************************
+ * QR WITH LINK
+ *************************************************/
+function generateQR() {
+  const revealUrl =
+    window.location.origin +
+    window.location.pathname +
+    "?token=" +
+    encodeURIComponent(userToken);
 
   const qr = new QRious({
     element: document.createElement("canvas"),
-    value: name,
+    value: revealUrl,
     size: 220
   });
 
@@ -147,7 +191,18 @@ function showResult(name) {
 }
 
 /*************************************************
- * ANDROID SCREENSHOT DETECTION (BEST POSSIBLE)
+ * AUTO OPEN FROM LINK
+ *************************************************/
+(function () {
+  const token = new URLSearchParams(location.search).get("token");
+  if (!token || !state.assignedTokens[token]) return;
+
+  userToken = token;
+  showReveal(state.assignedTokens[token]);
+})();
+
+/*************************************************
+ * SCREENSHOT DETERRENCE
  *************************************************/
 function enableAntiScreenshot() {
   document.addEventListener("visibilitychange", () => {
@@ -161,5 +216,4 @@ function enableAntiScreenshot() {
   });
 
   document.body.style.userSelect = "none";
-  document.body.style.webkitUserSelect = "none";
 }
