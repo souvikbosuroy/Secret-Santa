@@ -54,9 +54,25 @@ button {
   margin-top: 30px;
 }
 
+#game p {
+  color: #fff;
+  font-weight: 600;
+  font-size: 20px;
+}
+
 #dice {
-  font-size: 50px;
-  margin: 20px;
+  margin: 5px;
+}
+
+#greeting {
+  color: #fff;
+  font-weight: 600;
+  margin-top: 20px;
+}
+
+#dice {
+  font-size: 30px;
+  margin: 10px;
 }
 
 #qr {
