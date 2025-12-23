@@ -87,7 +87,7 @@ button {
 .hero {
   padding: 100px 40px;
   height: 100vh;
-  background: url(/video/santa.mp4) no-repeat center;
+  background: url(../video/santa.mp4) no-repeat center;
   background-size: cover;
 }
 
