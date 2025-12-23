@@ -63,6 +63,36 @@ unlockBtn.onclick = () => {
   gameDiv.style.display = "block";
 };
 
+function playSpinnerAnimation(finalName) {
+  const spinner = document.getElementById("spinner");
+  const spinnerInner = document.getElementById("spinnerInner");
+
+  // Build fake spinning list
+  const names = [
+    ...users.map(u => u.name),
+    finalName
+  ];
+
+  spinnerInner.innerHTML = "";
+
+  names.forEach(name => {
+    const div = document.createElement("div");
+    div.textContent = name;
+    spinnerInner.appendChild(div);
+  });
+
+  spinner.style.display = "block";
+
+  const itemHeight = 50; // must match CSS
+  spinnerInner.style.setProperty(
+    "--spin-distance",
+    `-${(names.length - 1) * itemHeight}px`
+  );
+
+  spinnerInner.style.animation = "spin 2s ease-in-out forwards";
+}
+
+
 /*************************************************
  * ASSIGN (GET-BASED, CORS-SAFE)
  *************************************************/
