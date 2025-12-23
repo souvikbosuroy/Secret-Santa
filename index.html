@@ -1,38 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Secret Santa Multi-Device</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, user-scalable=no">
+  <title>Secret Santa</title>
+
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h1>Secret Santa Dice Game</h1>
+<h1>🎄 Secret Santa Dice Game</h1>
 
 <div id="login">
-  <p>Enter your secret answer to unlock your assignment:</p>
-  <input type="text" id="secretAnswer" placeholder="Your secret answer">
+  <p>Enter your secret answer</p>
+  <input type="text" id="secretAnswer" placeholder="Your answer">
   <button id="unlockBtn">Unlock</button>
-  <p id="loginMsg" style="color:red;"></p>
+  <p id="loginMsg"></p>
 </div>
 
 <div id="game">
-  <p>Click the dice to see who you got!</p>
+  <p>Tap the dice 🎲</p>
   <div id="dice">🎲</div>
   <button id="rollBtn">Roll Dice</button>
 </div>
 
 <div id="result">
-  <h2>Your Secret Santa is:</h2>
+  <h2>Your Secret Santa</h2>
   <div id="assignedName"></div>
   <div id="qr"></div>
 </div>
 
-<!-- QR Library -->
-<script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
-<!-- Main Script -->
-<script src="script.js"></script>
+<div id="warningOverlay" class="warning-overlay">
+  🔒 Screenshots are discouraged.<br><br>
+  Please return to the app.
+</div>
 
+<script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
