@@ -28,6 +28,15 @@ input, button {
   box-shadow: 0 4px 40px 0 #00000049;
 }
 
+input:focus,
+input:focus-visible,
+input:focus-within,
+button:focus,
+button:focus-visible,
+button:focus-within {
+  outline: none;
+}
+
 h1,
 h2 {
   margin: 0;
@@ -137,6 +146,7 @@ button {
   line-height: 1.3em;
   color: #f00;
   stroke: 1px solid #fff;
+  margin-bottom: 30px;
 }
 
 .hero .container #login {
@@ -158,11 +168,12 @@ button {
   line-height: 1.5em;
 }
 
-.hero .container .login .unlockForm {
+.hero .container #login .unlockForm {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  margin-top: 30px;
 }
 
 .hero .backgroundSanta {
