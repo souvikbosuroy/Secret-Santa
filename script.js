@@ -2,10 +2,11 @@
  * CONFIG – EDIT ONLY THIS SECTION
  ************************************/
 const participants = [
-  { name: "Sayak", answer: "rendy" },
-  { name: "Debjit", answer: "bhodka" },
-  { name: "Charlie", answer: "cherry" },
-  { name: "David", answer: "date" }
+  { name: "Sayak Manna", answer: "rendy" },
+  { name: "Debjit Dey", answer: "bhodka" },
+  { name: "Sujay Biswas", answer: "cherry" },
+  { name: "Anindya Mazumder", answer: "date" },
+  { name: "Sayani Kundu", answer: "date" },
 ];
 
 /************************************
