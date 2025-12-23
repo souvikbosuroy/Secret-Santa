@@ -2,11 +2,12 @@
  * CONFIG – EDIT ONLY THIS SECTION
  ************************************/
 const participants = [
-  { name: "Sayak Manna", answer: "rendy" },
-  { name: "Debjit Dey", answer: "bhodka" },
-  { name: "Sujay Biswas", answer: "cherry" },
-  { name: "Anindya Mazumder", answer: "date" },
-  { name: "Sayani Kundu", answer: "date" },
+  { name: "Sayak Manna", answer: "sayak2054" },
+  { name: "Debjit Dey", answer: "debjit2055" },
+  { name: "Sujay Biswas", answer: "sujay2057" },
+  { name: "Anindya Mazumder", answer: "anindya2058" },
+  { name: "Sayani Kundu", answer: "sayani2059" },
+  { name: "Souvik Bosu Roy", answer: "souvik2060" },
 ];
 
 /************************************
