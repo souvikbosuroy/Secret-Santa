@@ -17,12 +17,15 @@
   <section class="hero">
     <video src="./video/santa.mp4" class="backgroundSanta" autoplay loop></video>
     <div class="container">
-      <h1>🎄 Secret Santa Dice Game</h1>
+      <img src="./images/tree.svg" alt="christmas-tree" class="treeIcon">
+      <h1>Let's know your <strong>Secret Santa</strong></h1>
 
       <div id="login">
-        <p>Enter your secret answer</p>
-        <input type="text" id="secretAnswer" placeholder="Your answer">
-        <button id="unlockBtn">Unlock</button>
+        <p>Enter your secret code received on <img src="./images/teams.svg" alt="teams"></p>
+        <div class="unlockForm">
+          <input type="text" id="secretAnswer" placeholder="Your answer">
+          <button id="unlockBtn">Unlock</button>
+        </div>
         <p id="loginMsg"></p>
       </div>
 

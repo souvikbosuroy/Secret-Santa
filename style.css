@@ -10,6 +10,12 @@ input, button {
   margin-top: 10px;
 }
 
+h1,
+h2 {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+}
+
 button {
   cursor: pointer;
 }
@@ -104,6 +110,27 @@ button {
 
 .hero .container {
   padding: 100px 40px;
+}
+
+.hero .container h1 {
+  font-size: 64px;
+  line-height: 1.3em;
+  color: #f00;
+  stroke: 1px solid #fff;
+}
+
+.hero .container .login {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero .container .login .unlockForm {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .hero .backgroundSanta {
