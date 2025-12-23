@@ -43,10 +43,12 @@ h2 {
   font-family: "Rubik Gemstones", system-ui;
   font-weight: 500;
   color: #f00;
+  text-shadow: 0 4px 0px #fff;
 }
 
 #result h2 {
   font-size: 40px;
+  text-shadow: 0 4px 0px #fff;
 }
 
 button {
