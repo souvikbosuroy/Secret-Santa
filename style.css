@@ -93,7 +93,6 @@ button {
 }
 
 .hero {
-  padding: 100px 40px;
   width: 100%;
   height: 100vh;
   background: url(../video/santa.mp4) no-repeat center;
@@ -103,6 +102,10 @@ button {
   align-items: center;
   overflow: hidden;
   position: relative;
+}
+
+.hero .container {
+  padding: 100px 40px;
 }
 
 .hero .backgroundSanta {
