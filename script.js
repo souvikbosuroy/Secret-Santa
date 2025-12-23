@@ -2,10 +2,10 @@
  * CONFIG — EDIT ONLY THIS
  *************************************************/
 const participants = [
-  { name: "Sayak",   answer: "rendy" },
-  { name: "Debjit",  answer: "bhodka" },
-  { name: "Charlie", answer: "cherry" },
-  { name: "David",   answer: "date" }
+  { name: "Sayak Maanna",   answer: "manna1111" },
+  { name: "Debjit Dey",  answer: "dey1112" },
+  { name: "Souvik Bosu Roy", answer: "Bosu1113" },
+  { name: "Anindya Mazumder",   answer: "Mazumder1114" },
 ].map(p => ({
   name: p.name,
   answer: p.answer.toLowerCase().trim()
