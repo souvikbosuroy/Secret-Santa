@@ -126,6 +126,10 @@ button {
   align-items: center;
 }
 
+.hero .container .login p {
+  color: #fff;
+}
+
 .hero .container .login .unlockForm {
   display: flex;
   flex-direction: column;
