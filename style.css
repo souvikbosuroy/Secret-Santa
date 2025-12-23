@@ -45,13 +45,17 @@ h2 {
   color: #f00;
 }
 
+#result h2 {
+  font-size: 40px;
+}
+
 button {
   cursor: pointer;
 }
 
 #game, #result {
   display: none;
-  margin-top: 30px;
+  margin-top: 10px;
 }
 
 #game p {
@@ -68,6 +72,14 @@ button {
   color: #fff;
   font-weight: 600;
   margin-top: 20px;
+}
+
+#assignedName {
+  color: #fff;
+  font-size: 30px;
+  font-weight: 600;
+  margin-top: 20px;
+  text-transform: uppercase;
 }
 
 #dice {
@@ -227,9 +239,10 @@ button {
 @media(max-width: 767px) {
   .hero {
     height: 100vh !important;
-    background-image: url(./images/christmas.jpg);
+    background: linear-gradient(rgba(0,0,0,0.2),rgba(0,0,0,0.2)), url(./images/christmas.jpg);
     background-repeat: no-repeat;
     background-size: cover;
+    background-position: right center;
   }
 
   .hero .container h1 {
