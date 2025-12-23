@@ -1,191 +1,105 @@
 /*************************************************
  * CONFIG
  *************************************************/
-const SHEET_API =
-  "https://script.google.com/macros/s/AKfycbwd-HHZmIssn49E6oe3ALqU6GQwTZwBHAyXWR-Nz7E16GfdIrkiA8q2UccVp7wRtn8rdA/exec";
-
-const STORAGE_KEY = "secret_santa_secure";
-const STORAGE_VERSION = "v6";
+const API_URL = "PASTE_YOUR_WEB_APP_URL_HERE";
 
 /*************************************************
  * GLOBALS
  *************************************************/
-let participants = [];
-let state = null;
+let users = [];
 let currentUser = null;
-let userToken = null;
 
 /*************************************************
- * LOAD PARTICIPANTS FROM SHEET
+ * LOAD USERS FROM SHEET
  *************************************************/
-async function loadParticipants() {
-  const res = await fetch(SHEET_API);
-  participants = await res.json();
-
-  initStorage();
+async function loadUsers() {
+  const res = await fetch(API_URL);
+  users = await res.json();
 }
-
-loadParticipants();
-
-/*************************************************
- * STORAGE
- *************************************************/
-function initStorage() {
-  const SIGNATURE = participants
-    .map(p => `${p.name}:${p.answer}`)
-    .join("|");
-
-  const defaultState = {
-    version: STORAGE_VERSION,
-    signature: SIGNATURE,
-    assignedTokens: {},
-    pool: participants.map(p => p.name)
-  };
-
-  state = JSON.parse(localStorage.getItem(STORAGE_KEY));
-
-  if (!state || state.signature !== SIGNATURE) {
-    state = structuredClone(defaultState);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }
-}
+loadUsers();
 
 /*************************************************
  * DOM
  *************************************************/
 const secretInput = document.getElementById("secretAnswer");
 const unlockBtn = document.getElementById("unlockBtn");
-const loginMsg = document.getElementById("loginMsg");
-const gameDiv = document.getElementById("game");
 const rollBtn = document.getElementById("rollBtn");
-const diceDiv = document.getElementById("dice");
+const loginMsg = document.getElementById("loginMsg");
+const greeting = document.getElementById("greeting");
 const resultDiv = document.getElementById("result");
 const assignedNameDiv = document.getElementById("assignedName");
-const overlay = document.getElementById("warningOverlay");
-
-/*************************************************
- * DEVICE CHECK
- *************************************************/
-function isPhone() {
-  return (
-    /android|iphone|ipod|windows phone/i.test(navigator.userAgent) &&
-    navigator.maxTouchPoints > 0 &&
-    window.innerWidth <= 768
-  );
-}
-
-function fingerprint() {
-  return btoa(
-    navigator.userAgent +
-    "|" +
-    screen.width +
-    "x" +
-    screen.height
-  );
-}
 
 /*************************************************
  * LOGIN
  *************************************************/
-unlockBtn.onclick = () => {
+unlockBtn.onclick = async () => {
   const answer = secretInput.value.toLowerCase().trim();
-  const user = participants.find(p => p.answer === answer);
+  const user = users.find(u => u.answer === answer);
 
   if (!user) {
     loginMsg.textContent = "❌ Wrong answer";
     return;
   }
 
-  currentUser = user.name;
-  userToken = btoa(user.name + ":" + answer);
-
+  currentUser = user;
+  greeting.textContent = `Hi, ${user.name} 👋`;
   loginMsg.textContent = "";
 
-  if (state.assignedTokens[userToken]) {
-    showReveal(state.assignedTokens[userToken]);
-  } else {
-    gameDiv.style.display = "block";
+  // Already assigned → reveal instantly
+  if (user.assigned_to) {
+    rollBtn.disabled = true;
+    showResult(user.assigned_to);
   }
 };
 
 /*************************************************
- * ROLL
+ * ASSIGN (GLOBAL LOCK)
  *************************************************/
-rollBtn.onclick = () => {
-  const available = state.pool.filter(n => n !== currentUser);
+rollBtn.onclick = async () => {
+  rollBtn.disabled = true;
+
+  const available = users
+    .filter(
+      u =>
+        !u.assigned_to &&
+        u.name !== currentUser.name
+    )
+    .map(u => u.name);
 
   if (!available.length) {
-    alert("No one left!");
+    alert("❌ No valid names left");
     return;
   }
 
-  let count = 0;
-  const interval = setInterval(() => {
-    diceDiv.textContent = "🎲".repeat(Math.floor(Math.random() * 6) + 1);
-    if (++count > 10) {
-      clearInterval(interval);
+  const chosen =
+    available[Math.floor(Math.random() * available.length)];
 
-      const chosen =
-        available[Math.floor(Math.random() * available.length)];
+  const res = await fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      giver: currentUser.name,
+      receiver: chosen
+    })
+  });
 
-      state.assignedTokens[userToken] = {
-        name: chosen,
-        opened: false,
-        device: null
-      };
+  const data = await res.json();
 
-      state.pool = state.pool.filter(n => n !== chosen);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  if (!data.success) {
+    alert(data.error);
+    location.reload(); // resync from sheet
+    return;
+  }
 
-      showReveal(state.assignedTokens[userToken]);
-    }
-  }, 100);
+  showResult(data.assigned_to);
 };
 
 /*************************************************
- * REVEAL
+ * RESULT
  *************************************************/
-function showReveal(entry) {
-  gameDiv.style.display = "none";
+function showResult(name) {
   resultDiv.style.display = "block";
-
-  if (!isPhone()) {
-    assignedNameDiv.innerHTML =
-      "<b>📵 Open this on your phone</b>";
-    return;
-  }
-
-  const fp = fingerprint();
-
-  if (entry.opened && entry.device !== fp) {
-    assignedNameDiv.innerHTML =
-      "<b>❌ Already opened on another device</b>";
-    return;
-  }
-
-  if (!entry.device) entry.device = fp;
-
-  assignedNameDiv.innerHTML = "🎁 Opening...";
-
-  setTimeout(() => {
-    assignedNameDiv.innerHTML = `
-      <div style="font-size:28px">
-        🎅 You got <b>${entry.name}</b>
-      </div>
-    `;
-
-    entry.opened = true;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }, 1500);
+  assignedNameDiv.innerHTML = `
+    🎁 You got <b>${name}</b>
+  `;
 }
-
-/*************************************************
- * AUTO OPEN VIA LINK
- *************************************************/
-(function () {
-  const token = new URLSearchParams(location.search).get("token");
-  if (!token || !state?.assignedTokens[token]) return;
-
-  userToken = token;
-  showReveal(state.assignedTokens[token]);
-})();
