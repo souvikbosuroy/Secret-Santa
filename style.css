@@ -137,6 +137,10 @@ button {
   position: relative;
 }
 
+.hero .backgroundSantaMobile {
+  display: none;
+}
+
 .hero .container {
   padding: 100px 40px;
 }
@@ -176,7 +180,7 @@ button {
   margin-top: 30px;
 }
 
-.hero .backgroundSanta {
+.hero .backgroundSantaDesktop {
   width: 100%;
   display: flex;
   justify-content: center;
@@ -204,6 +208,10 @@ button {
   align-items: center;
   gap: 0;
   margin-bottom: 20px;
+}
+
+.hero .backgroundSantaMobile {
+  display: block;
 }
 
 .hero .container h1 svg {
