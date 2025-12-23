@@ -1,7 +1,7 @@
 /*************************************************
  * CONFIG
  *************************************************/
-const API_URL = "PASTE_YOUR_WEB_APP_URL_HERE";
+const API_URL = "https://script.google.com/macros/s/AKfycbwd-HHZmIssn49E6oe3ALqU6GQwTZwBHAyXWR-Nz7E16GfdIrkiA8q2UccVp7wRtn8rdA/exec";
 
 /*************************************************
  * GLOBALS
