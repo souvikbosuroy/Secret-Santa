@@ -1,50 +1,48 @@
-/************************************
- * CONFIG – EDIT ONLY THIS SECTION
- ************************************/
+/*************************************************
+ * CONFIG — EDIT ONLY THIS
+ *************************************************/
 const participants = [
-  { name: "Sayak Manna", answer: "sayak2054" },
-  { name: "Debjit Dey", answer: "debjit2055" },
-  { name: "Sujay Biswas", answer: "sujay2057" },
-  { name: "Anindya Mazumder", answer: "anindya2058" },
-  { name: "Sayani Kundu", answer: "sayani2059" },
-  { name: "Souvik Bosu Roy", answer: "souvik2060" },
-];
+  { name: "Sayak",   answer: "rendy" },
+  { name: "Debjit",  answer: "bhodka" },
+  { name: "Charlie", answer: "cherry" },
+  { name: "David",   answer: "date" }
+].map(p => ({
+  name: p.name,
+  answer: p.answer.toLowerCase().trim()
+}));
 
-/************************************
- * INTERNAL SETUP (DO NOT EDIT)
- ************************************/
-const STORAGE_VERSION = "v2"; // bump this if logic ever changes
-const PARTICIPANT_SIGNATURE = participants
-  .map(p => p.name + ":" + p.answer)
+/*************************************************
+ * STORAGE AUTO-SYNC LOGIC (DO NOT TOUCH)
+ *************************************************/
+const STORAGE_KEY = "secret_santa_secure";
+const STORAGE_VERSION = "v3";
+
+// signature changes whenever code data changes
+const SIGNATURE = participants
+  .map(p => `${p.name}:${p.answer}`)
   .join("|");
 
-const STORAGE_KEY = "secretSantaData";
-
-const defaultData = {
+const defaultState = {
   version: STORAGE_VERSION,
-  signature: PARTICIPANT_SIGNATURE,
+  signature: SIGNATURE,
   assignedTokens: {},
-  sharedPool: participants.map(p => p.name)
+  pool: participants.map(p => p.name)
 };
 
-/************************************
- * LOAD + AUTO SYNC STORAGE
- ************************************/
-let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || null;
+let state = JSON.parse(localStorage.getItem(STORAGE_KEY));
 
-// If data is missing OR participants changed → reset safely
 if (
-  !data ||
-  data.version !== STORAGE_VERSION ||
-  data.signature !== PARTICIPANT_SIGNATURE
+  !state ||
+  state.version !== STORAGE_VERSION ||
+  state.signature !== SIGNATURE
 ) {
-  data = structuredClone(defaultData);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  state = structuredClone(defaultState);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
-/************************************
- * DOM ELEMENTS
- ************************************/
+/*************************************************
+ * DOM
+ *************************************************/
 const secretInput = document.getElementById("secretAnswer");
 const unlockBtn = document.getElementById("unlockBtn");
 const loginMsg = document.getElementById("loginMsg");
@@ -54,21 +52,31 @@ const diceDiv = document.getElementById("dice");
 const resultDiv = document.getElementById("result");
 const assignedNameDiv = document.getElementById("assignedName");
 const qrDiv = document.getElementById("qr");
+const overlay = document.getElementById("warningOverlay");
 
 let currentUser = null;
 let userToken = null;
 
-/************************************
- * UNLOCK USER
- ************************************/
-unlockBtn.addEventListener("click", () => {
-  const answer = secretInput.value.trim().toLowerCase();
-  const user = participants.find(
-    p => p.answer.toLowerCase() === answer
+/*************************************************
+ * DEVICE CHECK
+ *************************************************/
+function isPhone() {
+  return (
+    /android|iphone|ipod|windows phone/i.test(navigator.userAgent) &&
+    ("ontouchstart" in window || navigator.maxTouchPoints > 0) &&
+    window.innerWidth <= 768
   );
+}
+
+/*************************************************
+ * UNLOCK
+ *************************************************/
+unlockBtn.onclick = () => {
+  const answer = secretInput.value.toLowerCase().trim();
+  const user = participants.find(p => p.answer === answer);
 
   if (!user) {
-    loginMsg.textContent = "Incorrect answer!";
+    loginMsg.textContent = "Incorrect answer";
     return;
   }
 
@@ -76,64 +84,82 @@ unlockBtn.addEventListener("click", () => {
   userToken = btoa(user.name + ":" + answer);
   loginMsg.textContent = "";
 
-  if (data.assignedTokens[userToken]) {
-    showResult(data.assignedTokens[userToken]);
+  if (state.assignedTokens[userToken]) {
+    showResult(state.assignedTokens[userToken]);
   } else {
     gameDiv.style.display = "block";
   }
-});
+};
 
-/************************************
- * ROLL DICE
- ************************************/
-rollBtn.addEventListener("click", () => {
-  const available = data.sharedPool.filter(
-    name => name !== currentUser
-  );
-
+/*************************************************
+ * ROLL
+ *************************************************/
+rollBtn.onclick = () => {
+  const available = state.pool.filter(n => n !== currentUser);
   if (!available.length) {
-    alert("No one left to assign!");
+    alert("No one left!");
     return;
   }
 
-  let rolls = 0;
+  let count = 0;
   const interval = setInterval(() => {
-    diceDiv.textContent = "🎲".repeat(
-      Math.floor(Math.random() * 6) + 1
-    );
+    diceDiv.textContent = "🎲".repeat(Math.random() * 6 + 1);
+    count++;
 
-    rolls++;
-    if (rolls > 10) {
+    if (count > 10) {
       clearInterval(interval);
+      const chosen = available[Math.floor(Math.random() * available.length)];
 
-      const picked =
-        available[Math.floor(Math.random() * available.length)];
+      state.assignedTokens[userToken] = chosen;
+      state.pool = state.pool.filter(n => n !== chosen);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 
-      data.assignedTokens[userToken] = picked;
-      data.sharedPool = data.sharedPool.filter(n => n !== picked);
-
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      showResult(picked);
+      showResult(chosen);
     }
   }, 100);
-});
+};
 
-/************************************
- * SHOW RESULT (QR ONLY)
- ************************************/
+/*************************************************
+ * RESULT + PHONE ONLY + SCREENSHOT DETERRENCE
+ *************************************************/
 function showResult(name) {
   gameDiv.style.display = "none";
   resultDiv.style.display = "block";
+  qrDiv.innerHTML = "";
+
+  if (!isPhone()) {
+    assignedNameDiv.innerHTML =
+      "<b>🔒 Open this link on your phone to reveal your secret</b>";
+    return;
+  }
 
   assignedNameDiv.textContent =
-    "Scan your QR code to see your assignment";
+    "This QR is protected. Screenshots discouraged.";
 
-  qrDiv.innerHTML = "";
   const qr = new QRious({
     element: document.createElement("canvas"),
     value: name,
-    size: 200
+    size: 220
   });
 
   qrDiv.appendChild(qr.element);
+  enableAntiScreenshot();
+}
+
+/*************************************************
+ * ANDROID SCREENSHOT DETECTION (BEST POSSIBLE)
+ *************************************************/
+function enableAntiScreenshot() {
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      qrDiv.classList.add("secure-blur");
+      overlay.style.display = "flex";
+    } else {
+      qrDiv.classList.remove("secure-blur");
+      overlay.style.display = "none";
+    }
+  });
+
+  document.body.style.userSelect = "none";
+  document.body.style.webkitUserSelect = "none";
 }
