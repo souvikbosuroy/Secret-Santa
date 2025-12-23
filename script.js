@@ -33,6 +33,11 @@ const assignedNameDiv = document.getElementById("assignedName");
  * LOGIN
  *************************************************/
 unlockBtn.onclick = async () => {
+  if (!users.length) {
+    loginMsg.textContent = "⏳ Loading… please wait";
+    return;
+  }
+
   const answer = secretInput.value.toLowerCase().trim();
   const user = users.find(u => u.answer === answer);
 
@@ -45,12 +50,16 @@ unlockBtn.onclick = async () => {
   greeting.textContent = `Hi, ${user.name} 👋`;
   loginMsg.textContent = "";
 
-  // Already assigned → reveal instantly
+  // SHOW GAME
+  document.getElementById("game").style.display = "block";
+
   if (user.assigned_to) {
-    rollBtn.disabled = true;
+    document.getElementById("game").style.display = "none";
     showResult(user.assigned_to);
+    rollBtn.disabled = true;
   }
 };
+
 
 /*************************************************
  * ASSIGN (GLOBAL LOCK)
